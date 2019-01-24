@@ -2,32 +2,21 @@ extern crate rand;
 extern crate termion;
 
 use std::error::Error;
-
-use rand::seq::SliceRandom;
 use std::fs::File;
+use std::io::stdin;
 use std::io::BufRead;
 use std::io::BufReader;
-use std::io::Stdout;
-use std::io::{stdin, stdout, Write};
-use termion::color;
+
+use screen::TextScreen;
 use termion::event::Key;
 use termion::input::TermRead;
-use termion::raw::IntoRawMode;
-use termion::raw::RawTerminal;
 
-struct Stats {
-    correct: u16,
-    mistakes: u16,
-}
+use crate::game::Game;
+use std::io::Read;
+use std::io::Write;
 
-impl Stats {
-    fn new() -> Stats {
-        Stats {
-            correct: 0,
-            mistakes: 0,
-        }
-    }
-}
+mod game;
+mod screen;
 
 fn read_words_from_file(filename: &str) -> Result<Vec<String>, Box<dyn Error>> {
     let reader = BufReader::new(File::open(filename)?);
@@ -37,137 +26,53 @@ fn read_words_from_file(filename: &str) -> Result<Vec<String>, Box<dyn Error>> {
         .collect())
 }
 
-fn generate_random_line(
-    rng: &mut rand::prelude::ThreadRng,
-    words: &[String],
-    amount: u16,
-) -> String {
-    words
-        .choose_multiple(rng, amount as usize)
-        .cloned()
-        .collect::<Vec<String>>()
-        .join(" ")
-}
+fn pause() {
+    let mut stdin = stdin();
+    let mut stdout = std::io::stdout();
 
-fn prepare_terminal(stdout: &mut RawTerminal<Stdout>, instruction_line: u16) {
-    write!(
-        stdout,
-        "{}{}M-q (exit), M-r (restart){}",
-        termion::clear::All,
-        termion::cursor::Goto(1, instruction_line),
-        termion::cursor::Hide
-    )
-    .expect("Terminal error!");
+    write!(stdout, "\n\rPress any key to continue...").unwrap();
+    stdout.flush().unwrap();
+
+    let _ = stdin.read(&mut [0u8]).unwrap();
 }
 
 pub fn run() -> Result<(), Box<dyn Error>> {
-    const INSTRUCTION_LINE: u16 = 1;
-    const TEXT_LINE: u16 = 2;
-    const WORDS_PER_LINE: u16 = 10;
+    let mut screen = TextScreen::new();
+    let mut game = Game::new(read_words_from_file("res/rust/top500")?, 5);
 
-    let words = read_words_from_file("res/rust/top500")?;
-    let mut rng = rand::thread_rng();
+    screen.prepare_screen();
+
+    game.generate_challenge_phrase();
+    screen.display_challenge(&game.challenge_phrase())?;
 
     let stdin = stdin();
-    let mut stdout = stdout().into_raw_mode()?;
 
-    let mut challenge_phrase = generate_random_line(&mut rng, &words, WORDS_PER_LINE);
-
-    prepare_terminal(&mut stdout, INSTRUCTION_LINE);
-    write!(
-        stdout,
-        "{}{}{}",
-        termion::cursor::Goto(1, TEXT_LINE),
-        challenge_phrase,
-        termion::cursor::Goto(1, TEXT_LINE),
-    )?;
-    stdout.flush()?;
-
-    let mut current_index = 0;
-    let mut should_quit = false;
-    let mut should_restart = false;
-
-    let mut stats = Stats::new();
-
-    let mut phrase_keys = challenge_phrase.chars();
     for pressed_key in stdin.keys() {
-        let current_key = match phrase_keys.next() {
-            Some(c) => c,
-            None => {
-                challenge_phrase = generate_random_line(&mut rng, &words, WORDS_PER_LINE);
-                write!(
-                    stdout,
-                    "{}{}{}{}",
-                    termion::cursor::Goto(1, TEXT_LINE),
-                    termion::clear::CurrentLine,
-                    challenge_phrase,
-                    termion::cursor::Goto(1, TEXT_LINE),
-                )?;
-                stdout.flush()?;
-
-                current_index = 0;
-                phrase_keys = challenge_phrase.chars();
-                phrase_keys.next().unwrap()
-            }
-        };
-        write!(
-            stdout,
-            "{}",
-            termion::cursor::Goto(1 + current_index, TEXT_LINE),
-        )?;
-
+        let current_char = game.current_char();
         match pressed_key? {
             Key::Char(c) => match c {
-                _ if c == current_key => {
-                    write!(
-                        stdout,
-                        "{}{}{}",
-                        color::Fg(color::Green),
-                        current_key,
-                        color::Fg(color::Reset)
-                    )?;
-                    current_index += 1;
+                _ if c == current_char => {
+                    screen.print_ok(current_char);
+                    game.step();
                 }
                 _ => {
-                    write!(
-                        stdout,
-                        "{}{}{}",
-                        color::Fg(color::Red),
-                        current_key,
-                        color::Fg(color::Reset)
-                    )?;
-                    current_index += 1;
-                    stats.mistakes += 1;
+                    screen.print_err(current_char);
+                    game.step();
                 }
             },
-            Key::Alt(c) => match c {
-                'q' => {
-                    should_quit = true;
-                    break;
+            Key::Alt(c) => {
+                if let 'q' = c {
+                    game.quit();
                 }
-                'r' => {
-                    should_restart = true;
-                    break;
-                }
-                _ => (),
-            },
+            }
             _ => (),
         }
 
-        if should_quit {
+        if game.should_quit() {
+            pause();
             break;
         }
-
-        if should_restart {
-            break;
-        }
-
-        // Flush again.
-        stdout.flush()?;
     }
-
-    // Show the cursor again before we exit.
-    write!(stdout, "{}", termion::cursor::Show)?;
 
     Ok(())
 }
