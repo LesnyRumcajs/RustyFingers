@@ -1,12 +1,10 @@
 extern crate termion;
 
 use std::error::Error;
-use std::io::Stdout;
-use std::io::{stdout, Write};
+use std::io::{Stdout, stdout, Write};
 
 use termion::color;
-use termion::raw::IntoRawMode;
-use termion::raw::RawTerminal;
+use termion::raw::{IntoRawMode, RawTerminal};
 
 pub struct TextScreen {
     stdout: RawTerminal<Stdout>,
@@ -18,7 +16,7 @@ impl TextScreen {
         TextScreen { stdout }
     }
 
-    pub fn prepare_screen(&mut self) {
+    pub fn clear_screen(&mut self) {
         write!(
             self.stdout,
             "{}{}M-q (exit){}",

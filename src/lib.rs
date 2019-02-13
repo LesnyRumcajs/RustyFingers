@@ -1,30 +1,16 @@
-extern crate rand;
-extern crate termion;
-
 use std::error::Error;
-use std::fs::File;
 use std::io::stdin;
-use std::io::BufRead;
-use std::io::BufReader;
 
 use screen::TextScreen;
 use termion::event::Key;
 use termion::input::TermRead;
 
-use crate::game::Game;
 use std::io::Read;
 use std::io::Write;
 
 mod game;
 mod screen;
-
-fn read_words_from_file(filename: &str) -> Result<Vec<String>, Box<dyn Error>> {
-    let reader = BufReader::new(File::open(filename)?);
-    Ok(reader
-        .lines()
-        .map(|line| String::from(line.unwrap_or_default().trim()))
-        .collect())
-}
+mod words;
 
 fn pause() {
     let mut stdin = stdin();
@@ -33,14 +19,14 @@ fn pause() {
     write!(stdout, "\n\rPress any key to continue...").unwrap();
     stdout.flush().unwrap();
 
-    let _ = stdin.read(&mut [0u8]).unwrap();
+    stdin.read(&mut [0u8]).unwrap();
 }
 
 pub fn run() -> Result<(), Box<dyn Error>> {
     let mut screen = TextScreen::new();
-    let mut game = Game::new(read_words_from_file("res/rust/top500")?, 5);
+    let mut game = game::Game::new(words::read_words_from_file("res/rust/top500")?, 10);
 
-    screen.prepare_screen();
+    screen.clear_screen();
 
     game.generate_challenge_phrase();
     screen.display_challenge(&game.challenge_phrase())?;
