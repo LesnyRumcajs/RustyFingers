@@ -2,8 +2,8 @@
 name = "rustyfingers"
 version = "0.1.0"
 authors = ["lesnyrumcajs <lesny.rumcajs@gmail.com>"]
-# edition = "2018"
+edition = "2018"
 
 [dependencies]
 termion = "*"
-rand = "*"
+rand = "0.6.5"

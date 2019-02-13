@@ -1,12 +1,11 @@
 use std::error::Error;
-use std::io::stdin;
 
 use screen::TextScreen;
+
 use termion::event::Key;
 use termion::input::TermRead;
 
-use std::io::Read;
-use std::io::Write;
+use std::io::{stdin, Read, Write};
 
 mod game;
 mod screen;

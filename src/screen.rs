@@ -1,5 +1,3 @@
-extern crate termion;
-
 use std::error::Error;
 use std::io::{stdout, Stdout, Write};
 
