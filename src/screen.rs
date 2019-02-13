@@ -1,7 +1,7 @@
 extern crate termion;
 
 use std::error::Error;
-use std::io::{Stdout, stdout, Write};
+use std::io::{stdout, Stdout, Write};
 
 use termion::color;
 use termion::raw::{IntoRawMode, RawTerminal};
