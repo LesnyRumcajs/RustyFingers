@@ -2,14 +2,12 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 
-#[allow(dead_code)]
-struct Words {
+pub struct Words {
     words: Vec<String>,
 }
 
 impl Words {
-    #[allow(dead_code)]
-    fn from_file(path: &Path) -> Result<Self, failure::Error> {
+    pub fn from_file(path: &Path) -> Result<Self, failure::Error> {
         let reader = BufReader::new(File::open(path)?);
         let words = reader
             .lines()

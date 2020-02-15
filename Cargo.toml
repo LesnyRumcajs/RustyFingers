@@ -6,10 +6,11 @@ edition = "2018"
 
 [dependencies]
 failure = "0.1"
+termion = "1.5"
 
 [dev-dependencies]
 tempfile = "3.1"
 
 [[bin]]
-name = "game"
-path = "src/bin/game.rs"
+name = "play"
+path = "src/bin/play.rs"
