@@ -1,17 +1,15 @@
+use std::io::Write;
 use termion;
-use std::io::{Write, Read, Stdin};
 use termion::raw::{IntoRawMode, RawTerminal};
-use termion::event::Key;
-use termion::input::{TermRead, TermReadEventsAndRaw};
 
-pub struct Display<W:Write> {
-    out: RawTerminal<W>
+pub struct Display<W: Write> {
+    out: RawTerminal<W>,
 }
 
-impl<W:Write> Display<W> {
+impl<W: Write> Display<W> {
     pub fn new(w: W) -> Self {
         Self {
-            out: w.into_raw_mode().unwrap()
+            out: w.into_raw_mode().unwrap(),
         }
     }
 
@@ -20,13 +18,19 @@ impl<W:Write> Display<W> {
     }
 
     pub fn goto(&mut self, x: u16, y: u16) {
-        write!(self.out, "{}", termion::cursor::Goto(x,y)).unwrap();
+        write!(self.out, "{}", termion::cursor::Goto(x, y)).unwrap();
     }
 
     pub fn welcome(&mut self) {
         self.clear();
-        self.goto(1,1);
-        write!(self.out, "{}Rusty Fingers!{} Press space to start, ESC to exit", termion::style::Bold, termion::style::Reset).unwrap();
+        self.goto(1, 1);
+        write!(
+            self.out,
+            "{}Rusty Fingers!{} Press space to start, ESC to exit",
+            termion::style::Bold,
+            termion::style::Reset
+        )
+        .unwrap();
         self.out.flush().unwrap()
     }
 }

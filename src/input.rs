@@ -1,9 +1,9 @@
 use std::io::stdin;
-use termion::input::TermRead;
 use termion::event::Key;
+use termion::input::TermRead;
 
-pub struct Input {
-}
+#[derive(Default)]
+pub struct Input {}
 
 impl Input {
     pub fn new() -> Self {
@@ -14,11 +14,9 @@ impl Input {
         let stdin = stdin();
 
         for c in stdin.keys() {
-            match c.unwrap() {
-                Key::Esc => break,
-                _ => {}
+            if let Key::Esc = c.unwrap() {
+                break;
             }
         }
-
     }
 }
