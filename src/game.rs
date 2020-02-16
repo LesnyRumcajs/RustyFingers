@@ -3,7 +3,7 @@ use crate::words::Words;
 use std::io::Write;
 use std::path::Path;
 
-use crate::input::{Input, StartChoice};
+use crate::input::{Input, PlayAction, StartChoice};
 
 pub struct Game<W: Write> {
     display: Display<W>,
@@ -30,6 +30,21 @@ impl<W: Write> Game<W> {
             StartChoice::Play => {
                 let words = self.words.get_shuffled();
                 self.display.show_words(&words);
+
+                for c in words.join(" ").chars() {
+                    let input = self.input.play();
+
+                    match input {
+                        PlayAction::Exit => break,
+                        PlayAction::Char(ch) => {
+                            if ch == c {
+                                self.display.good(c);
+                            } else {
+                                self.display.bad(c);
+                            }
+                        }
+                    }
+                }
             }
             StartChoice::Exit => (),
         }

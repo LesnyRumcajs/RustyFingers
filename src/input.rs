@@ -7,6 +7,11 @@ pub enum StartChoice {
     Play,
 }
 
+pub enum PlayAction {
+    Exit,
+    Char(char),
+}
+
 #[derive(Default)]
 pub struct Input {}
 
@@ -15,13 +20,27 @@ impl Input {
         Self {}
     }
 
+    pub fn play(&self) -> PlayAction {
+        let stdin = stdin();
+
+        for c in stdin.keys() {
+            match c.unwrap() {
+                Key::Esc => break,
+                Key::Char(c) => return PlayAction::Char(c),
+                _ => {}
+            }
+        }
+
+        PlayAction::Exit
+    }
+
     pub fn wait_for_start(&self) -> StartChoice {
         let stdin = stdin();
 
         for c in stdin.keys() {
             match c.unwrap() {
                 Key::Esc => {
-                    return StartChoice::Exit;
+                    break;
                 }
                 Key::Char(' ') => {
                     return StartChoice::Play;

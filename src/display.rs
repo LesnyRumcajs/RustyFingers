@@ -47,11 +47,37 @@ impl<W: Write> Display<W> {
 
     pub fn show_words(&mut self, words: &[String]) {
         self.newline();
+        let (x, y) = self.out.cursor_pos().unwrap();
         write!(
             self.out,
             "{}{}{}",
             termion::color::Fg(termion::color::LightBlack),
             words.join(" "),
+            termion::color::Fg(termion::color::Reset)
+        )
+        .unwrap();
+        self.goto(x, y);
+        self.out.flush().unwrap();
+    }
+
+    pub fn good(&mut self, c: char) {
+        write!(
+            self.out,
+            "{}{}{}",
+            termion::color::Fg(termion::color::Green),
+            c,
+            termion::color::Fg(termion::color::Reset)
+        )
+        .unwrap();
+        self.out.flush().unwrap();
+    }
+
+    pub fn bad(&mut self, c: char) {
+        write!(
+            self.out,
+            "{}{}{}",
+            termion::color::Fg(termion::color::Red),
+            c,
             termion::color::Fg(termion::color::Reset)
         )
         .unwrap();
