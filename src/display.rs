@@ -44,4 +44,17 @@ impl<W: Write> Display<W> {
         self.newline();
         write!(self.out, "Thanks for playing! ❤️").unwrap()
     }
+
+    pub fn show_words(&mut self, words: &[String]) {
+        self.newline();
+        write!(
+            self.out,
+            "{}{}{}",
+            termion::color::Fg(termion::color::LightBlack),
+            words.join(" "),
+            termion::color::Fg(termion::color::Reset)
+        )
+        .unwrap();
+        self.out.flush().unwrap();
+    }
 }

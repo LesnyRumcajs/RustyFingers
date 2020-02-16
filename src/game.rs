@@ -27,9 +27,13 @@ impl<W: Write> Game<W> {
     pub fn play(&mut self) -> Result<(), failure::Error> {
         self.display.welcome();
         match self.input.wait_for_start() {
-            StartChoice::Play => println!("Start!"),
-            StartChoice::Exit => self.display.farewell(),
+            StartChoice::Play => {
+                let words = self.words.get_shuffled();
+                self.display.show_words(&words);
+            }
+            StartChoice::Exit => (),
         }
+        self.display.farewell();
 
         Ok(())
     }
