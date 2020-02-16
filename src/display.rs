@@ -27,7 +27,7 @@ impl<W: Write> Display<W> {
         self.goto(1, 1);
         write!(
             self.out,
-            "{}Rusty Fingers!{} Press space to start, ESC to exit",
+            "{}Rusty Fingers! 🦀\r\n{}Press space to start, ESC to exit",
             termion::style::Bold,
             termion::style::Reset
         )
