@@ -1,5 +1,6 @@
 use std::io::Write;
 use termion;
+use termion::cursor::DetectCursorPos;
 use termion::raw::{IntoRawMode, RawTerminal};
 
 pub struct Display<W: Write> {
@@ -32,5 +33,15 @@ impl<W: Write> Display<W> {
         )
         .unwrap();
         self.out.flush().unwrap()
+    }
+
+    fn newline(&mut self) {
+        let (_, y) = self.out.cursor_pos().unwrap();
+        self.goto(0, y + 1);
+    }
+
+    pub fn farewell(&mut self) {
+        self.newline();
+        write!(self.out, "Thanks for playing! ❤️").unwrap()
     }
 }

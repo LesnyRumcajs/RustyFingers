@@ -2,6 +2,11 @@ use std::io::stdin;
 use termion::event::Key;
 use termion::input::TermRead;
 
+pub enum StartChoice {
+    Exit,
+    Play,
+}
+
 #[derive(Default)]
 pub struct Input {}
 
@@ -10,13 +15,21 @@ impl Input {
         Self {}
     }
 
-    pub fn wait_for_exit(&self) {
+    pub fn wait_for_start(&self) -> StartChoice {
         let stdin = stdin();
 
         for c in stdin.keys() {
-            if let Key::Esc = c.unwrap() {
-                break;
+            match c.unwrap() {
+                Key::Esc => {
+                    return StartChoice::Exit;
+                }
+                Key::Char(' ') => {
+                    return StartChoice::Play;
+                }
+                _ => (),
             }
         }
+
+        StartChoice::Exit
     }
 }

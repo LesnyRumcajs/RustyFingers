@@ -3,7 +3,7 @@ use crate::words::Words;
 use std::io::Write;
 use std::path::Path;
 
-use crate::input::Input;
+use crate::input::{Input, StartChoice};
 
 pub struct Game<W: Write> {
     display: Display<W>,
@@ -24,9 +24,12 @@ impl<W: Write> Game<W> {
         })
     }
 
-    pub fn start(&mut self) -> Result<(), failure::Error> {
+    pub fn play(&mut self) -> Result<(), failure::Error> {
         self.display.welcome();
-        self.input.wait_for_exit();
+        match self.input.wait_for_start() {
+            StartChoice::Play => println!("Start!"),
+            StartChoice::Exit => self.display.farewell(),
+        }
 
         Ok(())
     }

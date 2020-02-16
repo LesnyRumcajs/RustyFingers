@@ -8,7 +8,7 @@ fn main() -> Result<(), failure::Error> {
     let game = Game::from_file(stdout, Path::new("res/eng/top1000"));
 
     if let Ok(mut game) = game {
-        game.start()?;
+        game.play()?;
     }
 
     Ok(())
