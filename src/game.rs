@@ -33,9 +33,8 @@ impl<W: Write> Game<W> {
                 self.display.show_words(&words);
 
                 let mut now = Instant::now();
-                let (mut good_count, mut bad_count) = (0,0);
+                let (mut good_count, mut bad_count) = (0, 0);
                 for c in words.join(" ").chars() {
-
                     let input = self.input.play();
 
                     // count time only after the first hit
@@ -56,7 +55,8 @@ impl<W: Write> Game<W> {
                     }
                 }
                 self.display.clear();
-                self.display.show_score(good_count, bad_count, now.elapsed());
+                self.display
+                    .show_score(good_count, bad_count, now.elapsed());
             }
             StartChoice::Exit => (),
         }

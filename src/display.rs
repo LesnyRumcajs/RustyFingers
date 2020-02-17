@@ -1,8 +1,8 @@
+use failure::_core::time::Duration;
 use std::io::Write;
 use termion;
 use termion::cursor::DetectCursorPos;
 use termion::raw::{IntoRawMode, RawTerminal};
-use failure::_core::time::Duration;
 
 pub struct Display<W: Write> {
     out: RawTerminal<W>,
@@ -20,8 +20,8 @@ impl<W: Write> Display<W> {
     }
 
     pub fn clear(&mut self) {
-        self.goto(0,2);
-        write!(self.out, "{}", termion::clear::AfterCursor);
+        self.goto(0, 2);
+        write!(self.out, "{}", termion::clear::AfterCursor).unwrap();
     }
 
     pub fn goto(&mut self, x: u16, y: u16) {
@@ -91,7 +91,8 @@ impl<W: Write> Display<W> {
     }
 
     pub fn show_score(&mut self, good: u32, bad: u32, time: Duration) {
-        write!(self.out,
+        write!(
+            self.out,
             "Good: {}{}{}\n\rBad: {}{}{}\n\rTime: {:.2}s\r\n",
             termion::color::Fg(termion::color::Green),
             good,
@@ -100,7 +101,8 @@ impl<W: Write> Display<W> {
             bad,
             termion::color::Fg(termion::color::Reset),
             time.as_secs_f32()
-        );
+        )
+        .unwrap();
         write!(
             self.out,
             "Your score is {}{:.2}{} characters per second!",
@@ -108,7 +110,7 @@ impl<W: Write> Display<W> {
             good as f32 / time.as_secs_f32(),
             termion::color::Fg(termion::color::Reset)
         )
-            .unwrap();
+        .unwrap();
         self.out.flush().unwrap();
     }
 }
