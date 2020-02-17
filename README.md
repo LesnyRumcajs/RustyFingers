@@ -4,4 +4,5 @@
 
 Project inspired by [10fastfingers.com](https://10fastfingers.com/), made with :heart: for Rust. Work in progress.
 
+Sample demo:
 [![asciicast](https://asciinema.org/a/iIarhpSLzCVdOr2cAB7ojiZb9.svg)](https://asciinema.org/a/iIarhpSLzCVdOr2cAB7ojiZb9)
