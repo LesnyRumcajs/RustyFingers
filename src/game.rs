@@ -4,6 +4,7 @@ use std::io::Write;
 use std::path::Path;
 
 use crate::input::{Input, PlayAction, StartChoice};
+use std::time::Instant;
 
 pub struct Game<W: Write> {
     display: Display<W>,
@@ -28,23 +29,34 @@ impl<W: Write> Game<W> {
         self.display.welcome();
         match self.input.wait_for_start() {
             StartChoice::Play => {
-                let words = self.words.get_shuffled();
+                let words = self.words.get_shuffled()[0..50].to_vec();
                 self.display.show_words(&words);
 
+                let mut now = Instant::now();
+                let (mut good_count, mut bad_count) = (0,0);
                 for c in words.join(" ").chars() {
+
                     let input = self.input.play();
 
+                    // count time only after the first hit
+                    if good_count == 0 && bad_count == 0 {
+                        now = Instant::now();
+                    }
                     match input {
                         PlayAction::Exit => break,
                         PlayAction::Char(ch) => {
                             if ch == c {
                                 self.display.good(c);
+                                good_count += 1;
                             } else {
                                 self.display.bad(c);
+                                bad_count += 1;
                             }
                         }
                     }
                 }
+                self.display.clear();
+                self.display.show_score(good_count, bad_count, now.elapsed());
             }
             StartChoice::Exit => (),
         }
